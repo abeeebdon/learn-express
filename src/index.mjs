@@ -2,8 +2,10 @@ import express, { response } from 'express'
 
 const app = express()
 
+//run at this port
 const PORT = process.env.PORT || 3000
 
+//user array
 const userArray = [
   {
     id: 1,
@@ -28,6 +30,8 @@ app.get('/api/users', (request, response) => {
   } = request
 
   if (!filter || !value) return response.status(200).send(userArray)
+
+  //if there is filter and value
   const filteredData = userArray.filter((user) =>
     user[filter].toLowerCase().includes(value.toLowerCase())
   )
@@ -41,6 +45,7 @@ app.get('/api/users/:id', (request, response) => {
   if (!findUser) return response.sendStatus(404)
   return response.send(findUser)
 })
+
 app.listen(PORT, () => {
   console.log(`Listening at ${PORT}`)
 })
