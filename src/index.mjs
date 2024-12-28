@@ -1,4 +1,12 @@
-import express, { response } from 'express'
+import express from 'express'
+import {
+  body,
+  query,
+  validationResult,
+  checkSchema,
+  matchedData,
+} from 'express-validator'
+import { addUserSchema } from '../utils/validation.mjs'
 
 const app = express()
 
@@ -21,24 +29,37 @@ const userArray = [
     name: 'Maroof',
   },
 ]
+
 app.get('/', (request, response) => {
   response.status(201).send({ msg: 'Hello world!' })
 })
 
-app.get('/api/users', (request, response) => {
-  const {
-    query: { file, value },
-  } = request
-  // you can destructure query parameters from a request it is important when you search a list from the backend
+app.get(
+  '/api/users',
+  query('filter')
+    .isString()
+    .withMessage('Value must be a string')
+    .notEmpty()
+    .withMessage('Filter must not be empty')
+    .isLength({ min: 4, max: 10 })
+    .withMessage('Please enter a value between 4 and 10'),
+  (request, response) => {
+    const result = validationResult(request)
+    console.log(result)
+    const {
+      query: { filter, value },
+    } = request
+    // you can destructure query parameters from a request it is important when you search a list from the backend
 
-  if (!file || !value) return response.status(200).send(userArray)
+    if (!filter || !value) return response.status(200).send(userArray)
 
-  //if there is filter and value
-  const filteredData = userArray.filter((user) =>
-    user[file].toLowerCase().includes(value.toLowerCase())
-  )
-  return response.status(200).send(filteredData)
-})
+    //if there is filter and value
+    const filteredData = userArray.filter((user) =>
+      user[filter].toLowerCase().includes(value.toLowerCase())
+    )
+    return response.status(200).send(filteredData)
+  }
+)
 
 app.get('/api/users/:id', (request, response) => {
   const parseId = parseInt(request.params.id)
@@ -74,12 +95,14 @@ app.put('/api/users/:id', (request, response) => {
   return response.send(userArray)
 })
 
-app.post('/abeeb', (req, res) => {
-  const { body } = req
-  console.log(body)
-  if (!body) res.sendStatus(400)
-  const newPost = { id: userArray.length + 1, ...body }
-  console.log(newPost)
+app.post('/abeeb', checkSchema(addUserSchema), (req, res) => {
+  const result = validationResult(req)
+
+  if (!result.isEmpty())
+    return res.status(400).send(result.array().map((data) => data.msg))
+  const data = matchedData(req)
+  if (!data) res.sendStatus(400)
+  const newPost = { id: userArray.length + 1, ...data }
 
   userArray.push(newPost)
   return res.send(userArray)
