@@ -7,9 +7,9 @@ import {
   matchedData,
 } from 'express-validator'
 import { addUserSchema } from '../utils/validation.mjs'
-
+import routerPath from '../routes/main.mjs'
 const app = express()
-
+app.use(routerPath)
 app.use(express.json())
 //run at this port
 const PORT = process.env.PORT || 3100

@@ -12,3 +12,23 @@ export const addUserSchema = {
     },
   },
 }
+
+export const addNewUserSchema = {
+  name: {
+    notEmpty: {
+      errorMessage: 'Name cannot be empty',
+    },
+    isLength: {
+      options: {
+        min: 4,
+        max: 20,
+      },
+      errorMessage: 'Name must be between 4 and 20 characters',
+    },
+  },
+  email: {
+    notEmpty: {
+      errorMessage: 'Email cannot be empty',
+    },
+  },
+}
