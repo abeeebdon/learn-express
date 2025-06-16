@@ -1,76 +1,85 @@
-import { Router } from 'express'
-import express from 'express'
-import { users } from '../constants/data.mjs'
-import { validationResult, checkSchema, matchedData } from 'express-validator'
-import { addNewUserSchema } from '../utils/validation.mjs'
-const router = Router()
+import { Router } from "express";
+import express from "express";
+import { validationResult, checkSchema, matchedData } from "express-validator";
+import { addNewUserSchema } from "../utils/validation.mjs";
+import { connectDB } from "../utils/db.mjs";
+import { ObjectId } from "mongodb";
+const router = Router();
 
-router.use(express.json())
+router.use(express.json());
+const db = await connectDB();
+const users = db.collection("users");
+//get all Users
 
-//get User
+router.get("/", async (req, res) => {
+  const { name } = req.query;
+  try {
+    if (name) {
+      const userArray = await users.find({ name: name }).toArray();
+      return res.send(userArray);
+    }
+    // if (typeof name === "string" && name.trim() !== "") {
+    //   const users = await db.find({ name: name }).toArray();
 
-router.get('/users', (req, res) => {
-  return res.send(users)
-})
+    //   return res.send(users);
+    // }
+
+    const userArray = await users.find().toArray();
+    return res.send(userArray);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
 
 //get User by id
+router.get("/:id", async (req, res) => {
+  const id = req.params.id;
 
-router.get('/user/:id', (req, res) => {
-  const id = req.params.id
-
-  const reqData = users.find((user) => user.id === parseInt(id))
-  if (!reqData) return res.sendStatus(400)
-  return res.send(reqData)
-})
-
-// filter user by name
-
-router.get('/user', (req, res) => {
-  const { filter } = req.query
-  console.log(filter)
-
-  const reqData = users.filter((user) =>
-    user.name.toLowerCase().includes(filter.toLowerCase())
-  )
-  if (!reqData) return sendStatus(400)
-  return res.send(reqData)
-})
+  const reqData = await users.findOne({ _id: new ObjectId(id) });
+  if (!reqData) return res.sendStatus(404);
+  return res.send(reqData);
+});
 
 // add User
 
-router.post('/users', checkSchema(addNewUserSchema), (req, res) => {
-  const result = validationResult(req)
-  const data = matchedData(req)
-  if (!result.isEmpty())
-    return res.status(400).send(result.array().map((data) => data.msg))
-  const newUser = { id: users.length + 1, ...data }
-  const newUsers = [...users, newUser]
-  return res.send(newUsers)
-})
+router.post("/", checkSchema(addNewUserSchema), async (req, res) => {
+  try {
+    const result = validationResult(req);
+    const data = matchedData(req);
+    if (!result.isEmpty())
+      return res.status(400).send(result.array().map((data) => data.msg));
+    const newUser = data;
+
+    const resp = await users.insertOne(newUser);
+
+    return res.status(201).json({ success: true, data: resp });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to create user" });
+  }
+});
 
 //edit user details
-router.put('/user/:id', (req, res) => {
-  const { id } = req.params
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
 
-  const reqData = users.find((user) => user.id === parseInt(id))
-  if (!reqData) return res.sendStatus(400)
-  const { name, email } = req.body
-  const updatedUser = { id, name, email }
-  const updatedUsers = users.map((user) =>
-    user.id === parseInt(id) ? updatedUser : user
-  )
-  return res.send(updatedUsers)
-})
+  const { name, email } = req.body;
+  const updatedUser = { name, email };
+  const reqData = await users.updateOne(
+    { _id: new ObjectId(id) },
+    { $set: updatedUser }
+  );
+
+  return res.send(reqData);
+});
 
 //delete user
 
-router.delete('/user/:id', (req, res) => {
-  const { id } = req.params
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
 
-  const reqData = users.find((user) => user.id === parseInt(id))
-  if (!reqData) return res.sendStatus(400)
-  const updatedUsers = users.filter((user) => user.id !== parseInt(id))
-  return res.send(updatedUsers)
-})
+  const reqData = await users.deleteOne({ _id: new ObjectId(id) });
 
-export default router
+  return res.send(reqData);
+});
+
+export default router;

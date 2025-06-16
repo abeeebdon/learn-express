@@ -1,34 +1,71 @@
 export const addUserSchema = {
   name: {
     notEmpty: {
-      errorMessage: 'Please enter ur username',
+      errorMessage: "Please enter ur username",
     },
     isLength: {
       options: {
         min: 4,
         max: 10,
       },
-      errorMessage: 'Username must be between 4 and 10 characters',
+      errorMessage: "Username must be between 4 and 10 characters",
     },
   },
-}
+};
 
 export const addNewUserSchema = {
   name: {
     notEmpty: {
-      errorMessage: 'Name cannot be empty',
+      errorMessage: "Name cannot be empty",
     },
     isLength: {
       options: {
         min: 4,
         max: 20,
       },
-      errorMessage: 'Name must be between 4 and 20 characters',
+      errorMessage: "Name must be between 4 and 20 characters",
     },
   },
   email: {
     notEmpty: {
-      errorMessage: 'Email cannot be empty',
+      errorMessage: "Email cannot be empty",
     },
   },
-}
+};
+
+export const addProduct = {
+  name: {
+    notEmpty: {
+      errorMessage: "Name cannot be empty",
+    },
+    isLength: {
+      options: {
+        min: 4,
+        max: 20,
+      },
+      errorMessage: "Name must be between 4 and 20 characters",
+    },
+  },
+  brand: {
+    notEmpty: {
+      errorMessage: "Brand name cannot be empty",
+    },
+    isLength: {
+      options: {
+        min: 4,
+        max: 20,
+      },
+      errorMessage: "Brand name must be between 4 and 20 characters",
+    },
+  },
+  inStock: {
+    notEmpty: {
+      errorMessage: "Must not be empty",
+    },
+  },
+  price: {
+    notEmpty: {
+      errorMessage: "Must not be empty",
+    },
+  },
+};
