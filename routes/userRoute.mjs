@@ -9,8 +9,8 @@ const router = Router();
 router.use(express.json());
 const db = await connectDB();
 const users = db.collection("users");
-//get all Users
 
+//get all Users
 router.get("/", async (req, res) => {
   const { name } = req.query;
   try {
@@ -41,7 +41,6 @@ router.get("/:id", async (req, res) => {
 });
 
 // add User
-
 router.post("/", checkSchema(addNewUserSchema), async (req, res) => {
   try {
     const result = validationResult(req);
@@ -73,7 +72,6 @@ router.put("/:id", async (req, res) => {
 });
 
 //delete user
-
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
 
