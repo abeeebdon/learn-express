@@ -26,6 +26,10 @@ app.use("/auth", authRoute);
 const PORT = process.env.PORT || 3000;
 // );
 
+app.get("/", (req, res) => {
+  return res.send("Welcome");
+});
+
 // app.post("/abeeb", checkSchema(addUserSchema), (req, res) => {
 //   const result = validationResult(req);
 
