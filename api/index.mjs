@@ -5,11 +5,13 @@ import productRouter from "../routes/productRoute.mjs";
 import userRouter from "../routes/userRoute.mjs";
 import authRoute from "../routes/authRoutes.mjs";
 import { connectDB } from "../utils/db.mjs";
+import cors from "cors";
 import bodyParser from "body-parser";
 dotenv.config();
 
 await connectDB();
 const app = express();
+app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(
@@ -23,7 +25,7 @@ app.use(
 app.use("/users", userRouter);
 app.use("/products", productRouter);
 app.use("/auth", authRoute);
-
+app.options("*", cors());
 //run at this port
 const PORT = 3000;
 // );
