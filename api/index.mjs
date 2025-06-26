@@ -5,11 +5,13 @@ import productRouter from "../routes/productRoute.mjs";
 import userRouter from "../routes/userRoute.mjs";
 import authRoute from "../routes/authRoutes.mjs";
 import { connectDB } from "../utils/db.mjs";
+import bodyParser from "body-parser";
 dotenv.config();
 
 await connectDB();
 const app = express();
 app.use(express.json());
+app.use(bodyParser.json());
 app.use(
   session({
     secret: "Abeeb",

@@ -4,6 +4,7 @@ import { validationResult, checkSchema, matchedData } from "express-validator";
 import { addNewUserSchema } from "../utils/validation.mjs";
 import { connectDB } from "../utils/db.mjs";
 import { ObjectId } from "mongodb";
+import { authenticateJWT } from "../utils/protected.mjs"; // Import the JWT authentication middleware
 const router = Router();
 
 router.use(express.json());
@@ -11,7 +12,7 @@ const db = await connectDB();
 const users = db.collection("users");
 
 //get all Users
-router.get("/", async (req, res) => {
+router.get("/", authenticateJWT, async (req, res) => {
   const { name } = req.query;
   try {
     if (name) {
