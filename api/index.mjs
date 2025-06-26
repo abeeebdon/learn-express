@@ -27,7 +27,7 @@ app.use("/products", productRouter);
 app.use("/auth", authRoute);
 app.options("*", cors());
 //run at this port
-const PORT = 3000;
+const PORT = 8000;
 // );
 
 app.get("/", (req, res) => {

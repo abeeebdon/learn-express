@@ -15,17 +15,17 @@ const secret_key = process.env.SECRET_KEY || "default_secret_key"; // Use a defa
 const findUserByEmail = async (email) => {
   try {
     const user = await users.findOne({ email: email }); // or just { email }
-    console.log("Found user:", user);
     return user;
   } catch (error) {
-    console.error("Error finding user:", error);
     return null;
   }
 };
 router.post("/signup", async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).send({ msg: "Email and password are required" });
+  const { email, password, fullName } = req.body;
+  if (!email || !password || !fullName) {
+    return res
+      .status(400)
+      .send({ msg: "Email, password, and full name are required" });
   }
   if (password.length < 8) {
     return res.status(400).json({
@@ -40,7 +40,12 @@ router.post("/signup", async (req, res) => {
       return res.status(409).json({ error: "Email already exists" });
     }
     const hashedPassword = await bcrypt.hash(password, 10); // hash the password
-    const newUser = { email: email, password: hashedPassword };
+    const newUser = {
+      email: email,
+      password: hashedPassword,
+      fullName: fullName,
+      createdAt: new Date(),
+    };
     users.insertOne(newUser);
     res.send({ msg: "Signup successfully", user: newUser });
   } catch (err) {
@@ -73,7 +78,6 @@ router.post("/login", async (req, res) => {
     );
     res.send({ msg: "Login successfully", token });
   } catch (error) {
-    console.error("Error during login:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
