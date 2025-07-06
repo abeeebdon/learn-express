@@ -84,4 +84,55 @@ router.post("/login", async (req, res) => {
     res.status(500).send({ msg: "Internal server error" });
   }
 });
+
+// get user profile by id
+router.get("/user/:id", async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const user = await users.findOne({ _id: new ObjectId(userId) });
+    if (!user) {
+      return res.status(404).send({ msg: "User not found" });
+    }
+    res.send({
+      msg: "User profile retrieved successfully",
+      user: {
+        email: user.email,
+        fullName: user.fullName,
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (error) {
+    res.status(500).send({ msg: "Internal server error" });
+  }
+});
+router.put("/user/:id", async (req, res) => {
+  const userId = req.params.id;
+  const { fullName, email, phone, username, website } = req.body;
+  if (!fullName || !email) {
+    return res.status(400).send({ msg: "Full name and email are required" });
+  }
+  try {
+    const updatedUser = await users.findOneAndUpdate(
+      { _id: new ObjectId(userId) },
+      { $set: { fullName, email, phone, username, website } },
+      { returnDocument: "after" }
+    );
+    if (!updatedUser.value) {
+      return res.status(404).send({ msg: "User not found" });
+    }
+    res.send({
+      msg: "User profile updated successfully",
+      user: {
+        email: updatedUser.value.email,
+        fullName: updatedUser.value.fullName,
+        phone: updatedUser.value.phone,
+        username: updatedUser.value.username,
+        website: updatedUser.value.website,
+        createdAt: updatedUser.value.createdAt,
+      },
+    });
+  } catch (error) {
+    res.status(500).send({ msg: "Internal server error" });
+  }
+});
 export default router;
