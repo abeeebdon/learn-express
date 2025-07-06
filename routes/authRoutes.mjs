@@ -91,18 +91,17 @@ router.post("/login", async (req, res) => {
 router.get("/user/:id", async (req, res) => {
   const userId = req.params.id;
   try {
-    const user = await users.findOne({ _id: new ObjectId(userId) });
+    const user = await users.findOne(
+      { _id: new ObjectId(userId) },
+      { projection: { password: 0 } }
+    );
 
     if (!user) {
       return res.status(404).send({ msg: "User not found" });
     }
     res.send({
       msg: "User profile retrieved successfully",
-      user: {
-        email: user.email,
-        fullName: user.fullName,
-        createdAt: user.createdAt,
-      },
+      user: user,
     });
   } catch (error) {
     res.status(500).send({ msg: "Internal server error" });
