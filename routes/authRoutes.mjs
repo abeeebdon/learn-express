@@ -20,6 +20,8 @@ const findUserByEmail = async (email) => {
     return null;
   }
 };
+
+// require fullName, password, email
 router.post("/signup", async (req, res) => {
   const { email, password, fullName } = req.body;
   if (!email || !password || !fullName) {
@@ -28,8 +30,8 @@ router.post("/signup", async (req, res) => {
       .send({ msg: "Email, password, and full name are required" });
   }
   if (password.length < 8) {
-    return res.status(400).json({
-      error: "Password must be at least 8 characters long",
+    return res.status(400).send({
+      msg: "Password must be at least 8 characters long",
     });
   }
 
@@ -37,7 +39,7 @@ router.post("/signup", async (req, res) => {
     const existingUser = await findUserByEmail(email); // ✅ await this
 
     if (existingUser) {
-      return res.status(409).json({ error: "Email already exists" });
+      return res.status(409).send({ msg: "Email already exists" });
     }
     const hashedPassword = await bcrypt.hash(password, 10); // hash the password
     const newUser = {
@@ -49,11 +51,12 @@ router.post("/signup", async (req, res) => {
     users.insertOne(newUser);
     res.send({ msg: "Signup successfully", user: newUser });
   } catch (err) {
-    return res.status(500).json({ error: "Failed to create user" });
+    return res.status(500).send({ msg: "Failed to create user" });
   }
 });
 
-// login
+// login with email and password
+// require email and password
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -62,14 +65,14 @@ router.post("/login", async (req, res) => {
   try {
     const existingUser = await findUserByEmail(email); // ✅ await this
     if (!existingUser) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).send({ msg: "User not found" });
     }
     const isPasswordValid = await bcrypt.compare(
       password,
       existingUser.password
     );
     if (!isPasswordValid) {
-      return res.status(401).json({ error: "Invalid password" });
+      return res.status(401).send({ msg: "Invalid password" });
     }
     const token = jwt.sign(
       { userId: existingUser._id, email: existingUser.email },
@@ -78,7 +81,7 @@ router.post("/login", async (req, res) => {
     );
     res.send({ msg: "Login successfully", token });
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).send({ msg: "Internal server error" });
   }
 });
 export default router;
