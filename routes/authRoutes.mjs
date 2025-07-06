@@ -108,6 +108,8 @@ router.get("/user/:id", async (req, res) => {
     res.status(500).send({ msg: "Internal server error" });
   }
 });
+
+// update usr profile
 router.put("/user/:id", async (req, res) => {
   const userId = req.params.id;
   const { fullName, email, phone, username, website } = req.body;
@@ -118,23 +120,24 @@ router.put("/user/:id", async (req, res) => {
     const updatedUser = await users.findOneAndUpdate(
       { _id: new ObjectId(userId) },
       { $set: { fullName, email, phone, username, website } },
-      { returnDocument: "after" }
+      { new: true }
     );
-    if (!updatedUser.value) {
+    if (!updatedUser) {
       return res.status(404).send({ msg: "User not found" });
     }
     res.send({
       msg: "User profile updated successfully",
       user: {
-        email: updatedUser.value.email,
-        fullName: updatedUser.value.fullName,
-        phone: updatedUser.value.phone,
-        username: updatedUser.value.username,
-        website: updatedUser.value.website,
-        createdAt: updatedUser.value.createdAt,
+        email: updatedUser.email,
+        fullName: updatedUser.fullName,
+        phone: updatedUser.phone,
+        username: updatedUser.username,
+        website: updatedUser.website,
+        createdAt: updatedUser.createdAt,
       },
     });
   } catch (error) {
+    console.error("Update error:", error);
     res.status(500).send({ msg: "Internal server error" });
   }
 });
