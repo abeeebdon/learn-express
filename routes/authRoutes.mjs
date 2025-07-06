@@ -1,6 +1,8 @@
 import express from "express";
 import bodyParser from "body-parser";
 import { Router } from "express";
+import { ObjectId } from "mongodb";
+
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { connectDB } from "../utils/db.mjs"; // Assuming connectDB is a function that connects
@@ -90,6 +92,7 @@ router.get("/user/:id", async (req, res) => {
   const userId = req.params.id;
   try {
     const user = await users.findOne({ _id: new ObjectId(userId) });
+
     if (!user) {
       return res.status(404).send({ msg: "User not found" });
     }
