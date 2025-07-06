@@ -79,7 +79,7 @@ router.post("/login", async (req, res) => {
       secret_key, // Use the secret key from environment variables
       { expiresIn: "1h" }
     );
-    res.send({ msg: "Login successfully", token });
+    res.send({ msg: "Login successfully", token, userId: existingUser._id });
   } catch (error) {
     res.status(500).send({ msg: "Internal server error" });
   }
