@@ -132,7 +132,40 @@ router.put("/user/:id", async (req, res) => {
         phone: updatedUser.phone,
         username: updatedUser.username,
         website: updatedUser.website,
+        address: updatedUser.address,
         createdAt: updatedUser.createdAt,
+      },
+    });
+  } catch (error) {
+    console.error("Update error:", error);
+    res.status(500).send({ msg: "Internal server error" });
+  }
+});
+
+// modify user address
+
+router.put("/user/:id", async (req, res) => {
+  const address = req.body;
+  const userId = req.params.id;
+  try {
+    const updatedUser = await users.findOneAndUpdate(
+      { _id: new ObjectId(userId) },
+      { $set: { address } },
+      { new: true }
+    );
+    if (!updatedUser) {
+      return res.status(404).send({ msg: "User not found" });
+    }
+    res.send({
+      msg: "User profile updated successfully",
+      user: {
+        email: updatedUser.email,
+        fullName: updatedUser.fullName,
+        phone: updatedUser.phone,
+        username: updatedUser.username,
+        website: updatedUser.website,
+        createdAt: updatedUser.createdAt,
+        address: updatedUser.address,
       },
     });
   } catch (error) {
